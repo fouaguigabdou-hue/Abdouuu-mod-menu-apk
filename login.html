@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Login</title><link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="card login">
+<h1>لوحة الإدارة</h1>
+<form method="post">
+<label>اسم المستخدم</label>
+<input name="username" autocomplete="username" required>
+<label>كلمة المرور</label>
+<input type="password" name="password" autocomplete="current-password" required>
+<button>دخول</button>
+</form>
+{% with messages=get_flashed_messages(with_categories=true) %}
+{% for category,msg in messages %}<p class="msg {{category}}">{{msg}}</p>{% endfor %}
+{% endwith %}
+</div>
+</body>
+</html>

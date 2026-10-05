@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>License Admin</title><link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="wrap">
+<header><h1>إدارة المفاتيح</h1>
+<form method="post" action="/admin/logout"><button class="danger">خروج</button></form></header>
+
+<div class="card">
+<h2>إنشاء مفتاح</h2>
+<form method="post" action="/admin/keys/create" class="row">
+<input type="number" name="days" value="30" min="1" max="3650">
+<span>يوم</span><button>إنشاء مفتاح جديد</button>
+</form>
+</div>
+
+<div class="card">
+<h2>المفاتيح ({{ keys|length }})</h2>
+<div class="table-wrap">
+<table>
+<tr><th>المفتاح</th><th>الحالة</th><th>الانتهاء</th><th>الجهاز</th><th>إجراءات</th></tr>
+{% for k in keys %}
+<tr>
+<td><code>{{k.key}}</code></td>
+<td>{% if k.active and k.expires_at > current_time %}<span class="ok">فعال</span>{% else %}<span class="bad">غير فعال</span>{% endif %}</td>
+<td>{{k.expires_at.strftime('%Y-%m-%d %H:%M UTC')}}</td>
+<td>{{k.device_id or 'غير مرتبط'}}</td>
+<td class="actions">
+<form method="post" action="/admin/keys/{{k.id}}/toggle"><button>{{'تعطيل' if k.active else 'تفعيل'}}</button></form>
+<form method="post" action="/admin/keys/{{k.id}}/extend"><input name="days" type="number" min="1" max="3650" value="30"><button>تمديد</button></form>
+<button class="danger" onclick="removeKey({{k.id}});return false;">حذف</button>
+</td>
+</tr>
+{% else %}
+<tr><td colspan="5">لا توجد مفاتيح بعد.</td></tr>
+{% endfor %}
+</table>
+</div>
+</div>
+
+<div class="card">
+<h2>API</h2>
+<p>تحقق من المفتاح:</p>
+<pre>POST /api/login
+Content-Type: application/json
+
+{"key":"VIP-XXXXXX-XXXXXX-XXXXXX","device_id":"device-123"}</pre>
+</div>
+</div>
+<script>
+async function removeKey(id){
+ if(!confirm('حذف المفتاح نهائيًا؟')) return;
+ const r=await fetch('/admin/keys/'+id,{method:'DELETE'});
+ if(r.ok) location.reload(); else alert('فشل الحذف');
+}
+</script>
+</body>
+</html>
